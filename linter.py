@@ -133,13 +133,14 @@ def check_cpp_lint(staged_files, cpplint_file, ascii_art, repo_root):
         if not os.path.isfile(changed_file):
             continue
         if changed_file.lower().endswith(('.cc', '.h', '.cpp', '.cu', '.cuh')):
-            # Search iteratively for the root of the catkin package.
+            # Search iteratively for the root of the include files.
+            # See https://github.com/cpplint/cpplint/blob/master/cpplint.py line 165.
             package_root = ''
             search_dir = os.path.dirname(os.path.abspath(changed_file))
             found_package_root = False
             MAX_DEPTH_OF_FILES = 100
             for _ in range(1, MAX_DEPTH_OF_FILES):
-                if os.path.isfile(search_dir + '/package.xml'):
+                if os.path.isfile(search_dir + '/CMakeLists.txt'):
                     package_root = search_dir
                     found_package_root = True
                     break
@@ -148,7 +149,7 @@ def check_cpp_lint(staged_files, cpplint_file, ascii_art, repo_root):
                     break
                 search_dir = os.path.dirname(search_dir)
             assert found_package_root, ("Could not find the root of the "
-                                        "catkin package that contains: "
+                                        "package that contains: "
                                         "{}".format(changed_file))
 
             # Get relative path to repository root.
